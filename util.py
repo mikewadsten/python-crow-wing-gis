@@ -21,7 +21,10 @@ def cull_the_herd(features=[], county=CROW_WING):
 
     for d in features:
         h = make_hasher(d)
-        hash_to_dicts.setdefault(h, d)
+        if h not in hash_to_dicts:
+            # Cut it down to just the relevant keys...
+            newdic = dict([(k, d[k]) for k in HERD_FIELDS[county]])
+            hash_to_dicts.setdefault(h, newdic)
 
     # Get the addresses out in alphabetical order by owner name?
     for key in sorted(hash_to_dicts.keys()):

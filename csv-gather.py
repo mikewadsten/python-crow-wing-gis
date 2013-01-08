@@ -54,8 +54,8 @@ if county not in counties:
 
 formats = {
     1: "Out-*-*-*.csv",
-    2: "Cass-*.csv",
-    3: "Aitkin-*.csv"
+    2: "Cass *.csv",
+    3: "Aitkin *.csv"
 }
 
 print "Gathering CSV files for {} County.".format(counties[county])
