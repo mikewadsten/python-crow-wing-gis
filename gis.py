@@ -4,6 +4,8 @@ import csv  # to handle csv crap
 import json  # to parse
 import requests
 import sys
+import os
+from util import cull_the_herd
 
 # This is where the fun begins.
 BASE_URL = ("http://gis.co.crow-wing.mn.us/ArcGIS/rest/services/CROWWING"
@@ -21,6 +23,10 @@ if __name__ != "__main__":
     sys.exit(1)
 
 # __name__ == __main__, so we're running gis.py as a script, so we continue.
+
+# change directory to location of gis.py because SOME PEOPLE DON'T
+# USE THE COMMAND LINE INTERPRETER ALL THE TIME...
+os.chdir(os.path.dirname(__file__))
 
 def get_ids(lake_name='', lake_num=0, min_val=0):
     """Given lake name (or lake number eventually) and minimum est. total value,
@@ -82,25 +88,6 @@ def get_data(ids=[]):
             recvd += len(_features)
             features += _features
     return features
-
-def cull_the_herd(features=[]):
-    """Remove duplicate names/addresses."""
-    def make_hasher(t):
-        return '|'.join([ t['OWNAME'], t['OWADR1'], t['OWADR2'],
-                          t['OWADR3'], t['OWADR4'] ])
-
-    hash_to_dicts = {}
-    retval = []
-
-    for d in features:
-        h = make_hasher(d)
-        hash_to_dicts.setdefault(h, d)
-
-    # Get the addresses out in alphabetical order by owner name?
-    for key in sorted(hash_to_dicts.keys()):
-        retval += [ hash_to_dicts[key] ]
-
-    return retval
 
 #####################################################################
 # I/O begins here
