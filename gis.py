@@ -143,6 +143,11 @@ with open(fname, 'w') as f:
 print '*'*60
 print
 
+barf = raw_input("Want to print the CSV? Enter 'y' if so: ").upper()
+if barf != "Y":
+    print "Remember, the CSV is at {}. Goodbye!".format(fname)
+    sys.exit(0)
+
 print "Here's the data, for your enjoyment."
 print
 
