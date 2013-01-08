@@ -110,9 +110,12 @@ print "NOTE: Leave 'Lake name' empty if you want to provide a lake number."
 print "NOTE: If 'Lake name' is non-empty, that is used instead of lake number."
 print
 
-ids = get_ids(lake_name=raw_input('Lake name: '),
-              lake_num=raw_input('Lake number: '),
-              min_val=raw_input('Value: '))
+lname = raw_input('Lake name: ')
+lnum = ''
+if not lname:
+    lnum = raw_input('Lake number: ')
+min_val = raw_input('Value: ')
+ids = get_ids(lake_name=lname, lake_num=lnum, min_val=min_val)
 
 print
 print "Count for initial query:", len(ids)
@@ -127,8 +130,10 @@ if len(data) < 1:
     print "No entries were returned. Goodbye!"
     sys.exit(0)
 
-print "Writing data out to out.csv"
-with open('out.csv', 'w') as f:
+fname = "Out-{}-{}-{}.csv".format(lname, lnum, min_val)
+print "Writing data out to", fname
+
+with open(fname, 'w') as f:
     fieldnames = ["OWNAME", "OWADR1", "OWADR2", "OWADR3", "OWADR4"]
     writer = csv.DictWriter(f, fieldnames=fieldnames,
                             delimiter=',', quotechar='"',
@@ -141,7 +146,7 @@ print
 print "Here's the data, for your enjoyment."
 print
 
-with open('out.csv', 'r') as f:
+with open(fname, 'r') as f:
     print f.read()
 
 # End of line.
