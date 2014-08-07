@@ -8,8 +8,8 @@ import os
 from util import cull_the_herd
 
 # This is where the fun begins.
-BASE_URL = ("http://gis.co.crow-wing.mn.us/ArcGIS/rest/services/CROWWING"
-            "SUBSCRIPTION/MapServer/0/query")
+BASE_URL = ...
+BASE_URL_AITKIN = ("http://gisweb.co.aitkin.mn.us/ArcGIS/rest/services/SubscriptionMap/MapServer/0/query")
 WHERE_LKNAME_FMT = "(UPPER(LKLAKD) = '{}') AND (ESTTOTVAL >= {})"
 WHERE_LKNUM_FMT = "(APLAKN = {}) AND (ESTTOTVAL >= {})"
 
@@ -57,6 +57,7 @@ def get_ids(lake_name='', lake_num=0, min_val=0):
     resp = requests.get(BASE_URL, params=params)
     #print resp.url
     sys.stdout.write(" Done.\n")
+    print resp.text
     return json.loads(resp.text).get('objectIds', [])  # probably unreliable...
 
 def get_data(ids=[]):
