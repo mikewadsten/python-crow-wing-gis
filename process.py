@@ -25,17 +25,9 @@ valkeys = { 1: "Est Total Val", 2: "Est. Total Value" }
 clskeys = { 1: "Assmt Class1", 2: "Class 1 Desc." }
 
 print "Welcome to Mike's raw GIS CSV processing script."
-print
-print "Which county (1 = Cass, 2 = Aitkin) are we dealing with?"
-county = raw_input("Enter 1 or 2: ")
-try:
-    county = int(county)
-    if county not in (1, 2):
-        raise ValueError, "Lol"
-except ValueError:
-    print "That's an invalid county number."
-    sys.exit(1)
 
+# We don't need to process raw Aitkin CSV anymore. But I'm a lazy butt.
+county = 1
 fmt = formats[county]
 files = glob.glob(fmt)
 

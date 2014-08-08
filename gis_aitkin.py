@@ -5,18 +5,22 @@ import json  # to parse
 import requests
 import sys
 import os
-from util import cull_the_herd
+from util import cull_the_herd, HERD_FIELDS, AITKIN_PREFIX
+
+from urllib import quote
 
 # This is where the fun begins.
-BASE_URL = ("http://gis.co.crow-wing.mn.us/ArcGIS/rest/services/CROWWING"
-            "SUBSCRIPTION/MapServer/0/query")
-WHERE_LKNAME_FMT = "(UPPER(LKLAKD) = '{}') AND (ESTTOTVAL >= {})"
-WHERE_LKNUM_FMT = "(APLAKN = {}) AND (ESTTOTVAL >= {})"
+BASE_URL = ("http://gisweb.co.aitkin.mn.us/ArcGIS/rest/services/MapLayers/"
+            "MapServer/30/query")
+WHERE_LKNAME_FMT = "(UPPER(%sLAKE_NAME) LIKE '%%{}%%') AND (%sLAND_EST >= {})"
+WHERE_LKNAME_FMT %= (AITKIN_PREFIX, AITKIN_PREFIX)
+WHERE_LKNUM_FMT = "(%sLAKE_NBR = {}) AND (%sLAND_EST >= {})"
+WHERE_LKNUM_FMT %= (AITKIN_PREFIX, AITKIN_PREFIX)
 
-where = ("AND ((UPPER(TPCLS1) LIKE 'RESIDENTIAL 1%') OR "
-         "(UPPER(TPCLS1) LIKE 'NON-COMM SEASONAL%'))")
-WHERE_LKNAME_FMT += where
-WHERE_LKNUM_FMT += where
+where = ("AND ((UPPER(%sTPCLS1) LIKE 'RESIDENTIAL 1%%') OR "
+         "(UPPER(%sTPCLS1) LIKE 'NON-COMM SEASONAL%%'))")
+WHERE_LKNAME_FMT += where % (AITKIN_PREFIX, AITKIN_PREFIX)
+WHERE_LKNUM_FMT += where % (AITKIN_PREFIX, AITKIN_PREFIX)
 
 if __name__ != "__main__":
     print "What are you doing. Stahp."
@@ -62,7 +66,7 @@ def get_ids(lake_name='', lake_num=0, min_val=0):
 def get_data(ids=[]):
     """Given object IDs, get owner name and addresses."""
     params = {'f': 'json', 'returnGeometry': False,
-              'outFields': 'OWNAME,OWADR1,OWADR2,OWADR3,OWADR4'}
+              'outFields': ','.join(HERD_FIELDS[3])}
     count = len(ids)
     recvd = 0
     features = []
@@ -82,7 +86,6 @@ def get_data(ids=[]):
             print "Request came back with status", resp.status_code
         else:
             respdict = json.loads(resp.text)
-            print resp.url
             _features = respdict.get('features', [])
             # We don't care about the property geometry.
             _features = [f['attributes'] for f in _features]
@@ -93,7 +96,7 @@ def get_data(ids=[]):
 #####################################################################
 # I/O begins here
 
-print "Welcome to Mike's Crow Wing County GIS searcher thing..."
+print "Welcome to Mike's Aitkin County GIS searcher thing..."
 print "NOTE: Leave 'Lake name' empty if you want to provide a lake number."
 print "NOTE: If 'Lake name' is non-empty, that is used instead of lake number."
 print
@@ -109,7 +112,7 @@ print
 print "Count for initial query:", len(ids)
 data = get_data(ids)
 print "Initial count:", len(data)
-data = cull_the_herd(data)
+data = cull_the_herd(data, 3)
 print "Count after duplicate removal:", len(data)
 print
 
@@ -118,11 +121,11 @@ if len(data) < 1:
     print "No entries were returned. Goodbye!"
     sys.exit(0)
 
-fname = "Out-{}-{}-{}.csv".format(lname, lnum, min_val)
+fname = "Aitkin {}{} {}.csv".format(lname, lnum, min_val)
 print "Writing data out to", fname
 
 with open(fname, 'w') as f:
-    fieldnames = ["OWNAME", "OWADR1", "OWADR2", "OWADR3", "OWADR4"]
+    fieldnames = HERD_FIELDS[3]
     writer = csv.DictWriter(f, fieldnames=fieldnames,
                             delimiter=',', quotechar='"',
                             quoting=csv.QUOTE_MINIMAL)
